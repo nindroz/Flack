@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block body %}
+<h1>WELCOME {{name}}
+</h1>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded',() => {
+        
+    // Connect to websocket
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+    socket.on('connect', () => {
+
+        document.querySelector('#form').onsubmit = () => {
+            
+            const name = document.querySelector('channelMake').value;
+            socket.emit("make channel",{"name":name});
+            };
+
+
+        });
+    
+
+    socket.on('display channel', data => {
+        const li = document.createElement('li');
+        li.innerHTML=data.name;
+        document.querySelector("channels").append(li);
+        });
+    });
+
+
+</script>
+<form id="form">
+    <input type="text" name="channel" id="channelMake">
+    <input type="submit" value="make channel">
+</form>
+
+{% if channels %}
+<ul id="channels">
+{% for channel in channels %}
+    <li>{{channel}}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

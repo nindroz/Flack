@@ -5,17 +5,21 @@ home
 {% endblock %}
 
 {% block body %}
-<h1>WELCOME 
-    {% if name %}
-        {{name}}
-    {% endif %}
-</h1>
+
+<script>
+    function channelMake(){
+        const channel = document.querySelector("#channelMake").value;
+
+    }
+</script>
+<h1>WELCOME</h1>
 
 {% if not name %}
-<form action="{{url_for('index')}}" method='post'">
+<form action="{{url_for('index')}}" method='post'>
     <input type="text" name="display">
     <input type="submit">
 </form>
 {% endif %}
+
 
 {% endblock %}
