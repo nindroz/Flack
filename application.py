@@ -31,7 +31,7 @@ def index():
 
 @app.route("/dashboard",methods=['post','get'])
 def dashboard():
-    return render_template("dashboard.html",name=session['displayName'],channels=channels)
+    return render_template("dashboard.html",name=session['displayName'])
 
 #test purposes
 @app.route("/pop")
@@ -39,15 +39,10 @@ def pop():
     session.pop("displayName")
     return redirect('/')
 
-@app.route("/channelMake", methods=['POST'])
-def channelMake():
-    name = request.form.get("channel")
-    channels.append(name)
-    return redirect(url_for('dashboard'))
-
-
 @socketio.on("make channel")
 def channelM(data):
     name=data['name']
+    print(f"Hello")
+    print(name)
     channels.append(name)
     emit("display name", {"channelName":name}, broadcast=True)
