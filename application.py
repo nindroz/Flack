@@ -45,4 +45,8 @@ def channelM(data):
     print(f"Hello")
     print(name)
     channels.append(name)
-    emit("display name", {"channelName":name}, broadcast=True)
+    emit("cast channel", {"channel": name}, broadcast=True)
+    #emit("display name", {"channel":name}, broadcast=True)
+
+if __name__ == '__main__':
+    socketio.run(app)

@@ -11,37 +11,41 @@ Dashboard
 <script type="text/javascript">
 
     document.addEventListener('DOMContentLoaded',() => {
-    // Connect to websocket
-    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        // Connect to websocket
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-    socket.on('connect', () => {
+        socket.on('connect', () => {
 
-        document.querySelector('#form').onsubmit = () => {
-            
-            const name = document.querySelector('#channelMake').value;
-            console.log("make");
-            socket.emit("make channel",{"name":name});
+            document.querySelector('#form').onsubmit = () => {
+                
+                const name = document.querySelector('#channelMake').value;
+                console.log("make");
+                socket.emit("make channel",{"name":name});
+                return false;
             };
+            
+            document.querySelectorAll('.channel').forEach( channel => {
+                channel.onclick = () => {
+                console.log("pp");}
+            });
+
+            document.querySelector('#sendMessage').onsubmit = () => {
+                const msg = document.querySelector("#message").value;
+                socket.emit("send message", {"message":message})
+            }
+
+        });
         
-        document.querySelectorAll('.channel').forEach( channel => {
-            channel.onclick = () => {
-            console.log("pp");}
-        });
 
-        document.querySelector('#sendMessage').onsubmit = () => {
-            const msg = document.querySelector("#message").value;
-            socket.emit("send message", {"message":message})
-        }
-
-        });
-    
-
-    socket.on('display name', data => {
-        console.log("data");
-        const li = document.createElement('li');
-        li.innerHTML=data.channelName;
-        document.querySelector("channels").append(li);
-        });
+        socket.on ('cast channel', data => {
+            console.log(data.channel);
+            //const li = document.createElement('li');
+            //li.innerHTML=`#${data.channel}`;
+            const ki = document.createElement('LI');
+            ki.innerHTML=`#cheese`;
+            document.getElementById("#channels").appendChild(ki);
+            console.log("pp");
+            });
     });
 
 
@@ -53,9 +57,10 @@ Dashboard
 
 {% if channels %}
     <ul id="channels">
-        <li><button class = "channel" data-name = {{channel}}>{{channel}}</button></li>
+        <!--<li><button class = "channel" data-name = {{channel}}>{{channel}}</button></li>-->
     </ul>
 {% endif %}
+
 <hr>
 
 <form id="sendMessage">
