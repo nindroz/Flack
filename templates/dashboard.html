@@ -10,9 +10,32 @@ Dashboard
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript">
 
+
     document.addEventListener('DOMContentLoaded',() => {
+    
+            
+            const request= new XMLHttpRequest();
+            request.open("GET","/getChannels");
+            console.log("dfsdz")
+        
+            request.onload = () => {
+            const data=JSON.parse(request.responseText);
+            console.log(`f${data}`);
+            for ( i=0; i<data.channels.length; i++){
+                const ki = document.createElement('li');
+                ki.innerHTML=`#${data.channels[i]}`;
+                document.querySelector("#channels").append(ki);
+                console.log(`f${data}`);
+            }
+            
+            }
+            request.send();
+ 
+        
+
         // Connect to websocket
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
 
         socket.on('connect', () => {
 
@@ -41,25 +64,23 @@ Dashboard
             console.log(data.channel);
             //const li = document.createElement('li');
             //li.innerHTML=`#${data.channel}`;
-            const ki = document.createElement('LI');
-            ki.innerHTML=`#cheese`;
-            document.getElementById("#channels").appendChild(ki);
+            const ki = document.createElement('li');
+            ki.innerHTML=`#${data.channel}`;
+            document.querySelector("#channels").append(ki);
             console.log("pp");
             });
     });
 
 
 </script>
+<button id="test">test</button>
 <form id="form">
     <input type="text"  id="channelMake">
     <input type="submit" value="make channel">
 </form>
 
-{% if channels %}
-    <ul id="channels">
-        <!--<li><button class = "channel" data-name = {{channel}}>{{channel}}</button></li>-->
-    </ul>
-{% endif %}
+<ul id="channels">
+</ul>
 
 <hr>
 
