@@ -14,22 +14,30 @@ Dashboard
     document.addEventListener('DOMContentLoaded',() => {
     
             
-            const request= new XMLHttpRequest();
-            request.open("GET","/getChannels");
-            console.log("dfsdz")
-        
-            request.onload = () => {
-            const data=JSON.parse(request.responseText);
-            console.log(`f${data}`);
-            for ( i=0; i<data.channels.length; i++){
-                const ki = document.createElement('li');
-                ki.innerHTML=`#${data.channels[i]}`;
-                document.querySelector("#channels").append(ki);
-                console.log(`f${data}`);
-            }
+        const request= new XMLHttpRequest();
+        request.open("GET","/getChannels");
+    
+        request.onload = () => {
+        const data=JSON.parse(request.responseText);
+        for ( i=0; i<data.channels.length; i++){
+            const ki = document.createElement('li');
+            const but = document.createElement("button");
+            ki.append(but);
+            but.innerHTML=`#${data.channels[i]}`;
+            ki.setAttribute("data-name",data.channels[i]);
+            document.querySelector("#channels").append(ki);
             
+        }
+        
+        }
+        request.send();
+
+        document.querySelectorAll("#channels").forEach( button => {
+            button.onclick = () => {
+                console.log(button.dataset.name);
             }
-            request.send();
+        })
+
  
         
 
@@ -42,19 +50,15 @@ Dashboard
             document.querySelector('#form').onsubmit = () => {
                 
                 const name = document.querySelector('#channelMake').value;
-                console.log("make");
                 socket.emit("make channel",{"name":name});
                 return false;
             };
             
-            document.querySelectorAll('.channel').forEach( channel => {
-                channel.onclick = () => {
-                console.log("pp");}
-            });
 
             document.querySelector('#sendMessage').onsubmit = () => {
                 const msg = document.querySelector("#message").value;
-                socket.emit("send message", {"message":message})
+                socket.emit("send message", {"message":msg, "channel":"adf"})
+                return false;
             }
 
         });
@@ -62,18 +66,25 @@ Dashboard
 
         socket.on ('cast channel', data => {
             console.log(data.channel);
-            //const li = document.createElement('li');
-            //li.innerHTML=`#${data.channel}`;
             const ki = document.createElement('li');
-            ki.innerHTML=`#${data.channel}`;
+            const but = document.createElement("button");
+            ki.append(but)
+            but.innerHTML=`#${data.channel}`;
+            ki.setAttribute("data-name",data.channel);
             document.querySelector("#channels").append(ki);
-            console.log("pp");
+            
             });
+
+        socket.on ("display message", data => {
+            console.log(data.message);
+            const li = document.createElement("li");
+            li.innerHTML=data.message;
+            document.querySelector("#testmsg").append(li);
+        });
     });
 
 
 </script>
-<button id="test">test</button>
 <form id="form">
     <input type="text"  id="channelMake">
     <input type="submit" value="make channel">
@@ -88,6 +99,12 @@ Dashboard
     <input type="text" name="message" id="message">
     <input type="submit">
 </form>
+
+
+<!--tempporary-->
+<ul id="testmsg">
+
+</ul>
 
 
 {% endblock %}

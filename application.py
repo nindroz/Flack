@@ -2,13 +2,14 @@ import os
 
 from flask import Flask,render_template,request,session,redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit
+from collections import deque
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "fdjdkfksajfasdj"
 socketio = SocketIO(app)
 
 channels=[]
-messages={}
+messages=[]
 
 @app.route("/",methods=['GET',"POST"])
 def index():
@@ -47,8 +48,17 @@ def getChannels():
 def channelM(data):
     name=data['name']
     print(f"Hello")
+    #channels[name]=deque(maxlen=100)
     channels.append(name)
     emit("cast channel", {"channel": name}, broadcast=True)
+
+@socketio.on("send message")
+def message(data):
+    msg=data['message']
+    #channels[data['channel']].append(msg)
+    print(msg)
+    emit("display message", {"message": msg},broadcast=True) 
+
 
 if __name__ == '__main__':
     socketio.run(app)
