@@ -44,6 +44,19 @@ def pop():
 def getChannels():
     return jsonify({"channels":channels})
 
+@app.route("/clean")
+def clean():
+    channels.clear()
+    return redirect(url_for("index"))
+
+@app.route("/select", methods=['POST'])
+def select():
+    channel = request.form.get("channel")
+    print("pp")
+    print(channel)
+    return "pp"
+
+
 @socketio.on("make channel")
 def channelM(data):
     name=data['name']
@@ -58,6 +71,14 @@ def message(data):
     #channels[data['channel']].append(msg)
     print(msg)
     emit("display message", {"message": msg},broadcast=True) 
+
+@socketio.on("select channel")
+def channel(data):
+    print("pp")
+    print(data["channel"])
+    session['currentChannel']=data['channel']
+    emit("show channel", {"channel": session["currentChannel"]})
+
 
 
 if __name__ == '__main__':

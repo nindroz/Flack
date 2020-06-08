@@ -32,13 +32,9 @@ Dashboard
         }
         request.send();
 
-        document.querySelectorAll("#channels").forEach( button => {
-            button.onclick = () => {
-                console.log(button.dataset.name);
-            }
-        })
+        
+        
 
- 
         
 
         // Connect to websocket
@@ -54,6 +50,7 @@ Dashboard
                 return false;
             };
             
+            
 
             document.querySelector('#sendMessage').onsubmit = () => {
                 const msg = document.querySelector("#message").value;
@@ -61,16 +58,19 @@ Dashboard
                 return false;
             }
 
+           
+
+
         });
         
 
         socket.on ('cast channel', data => {
-            console.log(data.channel);
             const ki = document.createElement('li');
             const but = document.createElement("button");
             ki.append(but)
             but.innerHTML=`#${data.channel}`;
             ki.setAttribute("data-name",data.channel);
+            console.log(`it work: ${ki.dataset.name}`);
             document.querySelector("#channels").append(ki);
             
             });
@@ -81,6 +81,30 @@ Dashboard
             li.innerHTML=data.message;
             document.querySelector("#testmsg").append(li);
         });
+
+        socket.on ("show channel", data => {
+            console.log(data.channel);
+        })
+    });
+
+    window.addEventListener("load", () =>{
+        const channelList = document.getElementById('channels');
+        for (let i = 0; i < channelList.children.length; i++) {
+            channelList.children[i].children[i].onclick = () => {
+                console.log("clicked"); 
+                const request1 = new XMLHttpRequest();
+                request1.open("POST","/select");
+
+                request1.onload = () => {
+                    {}
+            } 
+                const currentChannel = new FormData();
+                currentChannel.append("channel",channelList.children[i].dataset.name);
+                request1.send(currentChannel);
+                    
+        };
+        }
+        
     });
 
 
