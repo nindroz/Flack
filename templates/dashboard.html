@@ -22,6 +22,7 @@ Dashboard
         for ( i=0; i<data.channels.length; i++){
             const ki = document.createElement('li');
             const but = document.createElement("button");
+            but.setAttribute("onclick","clickrun()");
             ki.append(but);
             but.innerHTML=`#${data.channels[i]}`;
             ki.setAttribute("data-name",data.channels[i]);
@@ -34,7 +35,6 @@ Dashboard
 
         
         
-
         
 
         // Connect to websocket
@@ -67,6 +67,7 @@ Dashboard
         socket.on ('cast channel', data => {
             const ki = document.createElement('li');
             const but = document.createElement("button");
+            but.setAttribute("onclick","clickrun()");
             ki.append(but)
             but.innerHTML=`#${data.channel}`;
             ki.setAttribute("data-name",data.channel);
@@ -85,27 +86,29 @@ Dashboard
         socket.on ("show channel", data => {
             console.log(data.channel);
         })
-    });
-
-    window.addEventListener("load", () =>{
-        const channelList = document.getElementById('channels');
-        for (let i = 0; i < channelList.children.length; i++) {
-            channelList.children[i].children[i].onclick = () => {
-                console.log("clicked"); 
-                const request1 = new XMLHttpRequest();
-                request1.open("POST","/select");
-
-                request1.onload = () => {
-                    {}
-            } 
-                const currentChannel = new FormData();
-                currentChannel.append("channel",channelList.children[i].dataset.name);
-                request1.send(currentChannel);
-                    
-        };
-        }
         
     });
+
+    function clickrun() {
+        console.log("works");
+        const channelList = document.getElementById('channels');
+        for (let i = 0; i < channelList.children.length; i++) {
+            console.log(1);
+            channelList.children[i].children[i].onclick = () => {
+               console.log("clicked"); 
+               const request1 = new XMLHttpRequest();
+               request1.open("POST","/select");
+
+                request1.onload = () => {
+                   {}
+           } 
+               const currentChannel = new FormData();
+               currentChannel.append("channel",channelList.children[i].dataset.name);
+               request1.send(currentChannel);
+                    
+       };
+       }
+    }
 
 
 </script>
