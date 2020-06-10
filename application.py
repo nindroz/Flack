@@ -8,8 +8,8 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "fdjdkfksajfasdj"
 socketio = SocketIO(app)
 
-channels=[]
-messages=[]
+channels={}
+grabChannels=[]
 
 @app.route("/",methods=['GET',"POST"])
 def index():
@@ -42,42 +42,47 @@ def pop():
 
 @app.route("/getChannels",methods=['GET'])
 def getChannels():
-    return jsonify({"channels":channels})
+    return jsonify({"channels":grabChannels})
 
+@app.route("/getMessages/<name>")
+def getMessages(name):
+    messages=list(channels[name]['messages'])
+    return jsonify({"messages":messages})
+    
 @app.route("/clean")
 def clean():
     channels.clear()
+    grabChannels.clear()
     return redirect(url_for("index"))
 
 @app.route("/select", methods=['POST'])
 def select():
     channel = request.form.get("channel")
-    print("pp")
-    print(channel)
-    return "pp"
+    session["currentChannel"]=channel
+    print("current: "+session["currentChannel"])
+    return "pass"
 
 
 @socketio.on("make channel")
 def channelM(data):
     name=data['name']
     print(f"Hello")
-    #channels[name]=deque(maxlen=100)
-    channels.append(name)
+    grabChannels.append(name)
+    channels[name]={}
+    channels[name]['messages']=deque(maxlen=100)
     emit("cast channel", {"channel": name}, broadcast=True)
 
 @socketio.on("send message")
 def message(data):
     msg=data['message']
-    #channels[data['channel']].append(msg)
+    try:
+        channels[session['currentChannel']]['messages'].append(msg)
+    except:
+        print("except "+ session["currentChannel"])
+
     print(msg)
     emit("display message", {"message": msg},broadcast=True) 
 
-@socketio.on("select channel")
-def channel(data):
-    print("pp")
-    print(data["channel"])
-    session['currentChannel']=data['channel']
-    emit("show channel", {"channel": session["currentChannel"]})
 
 
 
