@@ -47,6 +47,7 @@ def getChannels():
 @app.route("/getMessages/<name>")
 def getMessages(name):
     messages=list(channels[name]['messages'])
+    print("message"+name)
     return jsonify({"messages":messages})
     
 @app.route("/clean")
@@ -66,7 +67,6 @@ def select():
 @socketio.on("make channel")
 def channelM(data):
     name=data['name']
-    print(f"Hello")
     grabChannels.append(name)
     channels[name]={}
     channels[name]['messages']=deque(maxlen=100)
@@ -75,12 +75,12 @@ def channelM(data):
 @socketio.on("send message")
 def message(data):
     msg=data['message']
+    print("given channel:" + data["channel"])
     try:
-        channels[session['currentChannel']]['messages'].append(msg)
+        channels[data['channel']]['messages'].append(msg)
     except:
-        print("except "+ session["currentChannel"])
+        print("except "+ data["channel"])
 
-    print(msg)
     emit("display message", {"message": msg},broadcast=True) 
 
 

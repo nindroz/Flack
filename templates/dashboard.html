@@ -13,7 +13,7 @@ Dashboard
 
     document.addEventListener('DOMContentLoaded',() => {
     
-            
+        //gets channels on load    
         const request= new XMLHttpRequest();
         request.open("GET","/getChannels");
     
@@ -32,6 +32,26 @@ Dashboard
         
         }
         request.send();
+
+        //gets messages of previous channel on load
+        //gets messages
+        const request1 = new XMLHttpRequest();
+        const oldChannel=localStorage.getItem("channel")
+        document.querySelector("#displayChannel").innerHTML=oldChannel;
+        request1.open("GET",`/getMessages/${oldChannel}`);
+
+        request1.onload = () => {
+            const data = JSON.parse(request1.responseText);
+            console.log(data.messages);
+            for(i=0; i<data.messages.length;i++){
+                const list = document.querySelector("#testmsg");
+                const msg = document.createElement("li");
+                msg.innerHTML=data.messages[i];
+                list.append(msg);
+            }
+        }
+        request1.send();
+
 
 
 
@@ -55,8 +75,10 @@ Dashboard
             
 
             document.querySelector('#sendMessage').onsubmit = () => {
-                const msg = document.querySelector("#message").value;
-                socket.emit("send message", {"message":msg, "channel":"adf"})
+                const msg = document.querySelector("#message");
+                const channel = localStorage.getItem("channel");
+                console.log(channel);
+                socket.emit("send message", {"message":msg.value, "channel":channel})
                 return false;
             }
 
@@ -89,10 +111,10 @@ Dashboard
     });
 
     function clickrun(elem) {
-        console.log(elem);
+        console.log(elem.dataset.name);
         console.log("clicked"); 
         localStorage.setItem("channel",elem.dataset.name);
-        
+        document.querySelector("#displayChannel").innerHTML=elem.dataset.name;
         //clears the list so new messages can be loaded
         var ul = document.getElementById("testmsg");
         var lis = ul.getElementsByTagName("li");
@@ -110,10 +132,11 @@ Dashboard
         request.send(currentChannel);
         
         //gets messages
-        request.open("GET",`/getMessages/${elem.dataset.name}`);
+        const request1 = new XMLHttpRequest();
+        request1.open("GET",`/getMessages/${elem.dataset.name}`);
 
-        request.onload = () => {
-            const data = JSON.parse(request.responseText);
+        request1.onload = () => {
+            const data = JSON.parse(request1.responseText);
             console.log(data.messages);
             for(i=0; i<data.messages.length;i++){
                 const list = document.querySelector("#testmsg");
@@ -122,7 +145,7 @@ Dashboard
                 list.append(msg);
             }
         }
-        request.send();
+        request1.send();
     }
 
 
@@ -136,6 +159,8 @@ Dashboard
 </ul>
 
 <hr>
+
+<h2 id="displayChannel"></h2>
 
 <form id="sendMessage">
     <input type="text" name="message" id="message">
