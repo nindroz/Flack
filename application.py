@@ -47,8 +47,10 @@ def getChannels():
 @app.route("/getMessages/<name>")
 def getMessages(name):
     messages=list(channels[name]['messages'])
+    users=list(channels[name]['usernames'])
+    timestamp=list(channels[name]['times'])
     print("message"+name)
-    return jsonify({"messages":messages})
+    return jsonify({"messages":messages,"user":users,"timestamp":timestamp})
     
 @app.route("/clean")
 def clean():
@@ -66,22 +68,26 @@ def select():
 
 @socketio.on("make channel")
 def channelM(data):
+    if(data['name'] in grabChannels):
+        return None
     name=data['name']
     grabChannels.append(name)
     channels[name]={}
     channels[name]['messages']=deque(maxlen=100)
+    channels[name]["usernames"]=deque(maxlen=100)
+    channels[name]["times"]=deque(maxlen=100)
     emit("cast channel", {"channel": name}, broadcast=True)
 
 @socketio.on("send message")
 def message(data):
     msg=data['message']
     print("given channel:" + data["channel"])
-    try:
-        channels[data['channel']]['messages'].append(msg)
-    except:
-        print("except "+ data["channel"])
+    channels[data['channel']]['messages'].append(msg)
+    channels[data['channel']]["usernames"].append(session["displayName"])
+    time = channels[data['channel']]["times"].append(data['timestamp'])
+    emit("display message", {"message": msg,"user":session["displayName"],"timestamp":time},broadcast=True)
 
-    emit("display message", {"message": msg},broadcast=True) 
+     
 
 
 
