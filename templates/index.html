@@ -6,13 +6,22 @@ home
 
 {% block body %}
 
-<h1>WELCOME</h1>
+
 
 {% if not name %}
-<form action="{{url_for('index')}}" method='post'>
-    <input type="text" name="display">
-    <input type="submit">
-</form>
+
+<div class="container" style="margin-top: 50px;">
+    <div class="row justify-content-center">
+      <div class="col-4">
+        <form action="{{url_for('index')}}" method='post'>
+            <h1>WELCOME</h1>
+            <input type="text" name="display">
+            <input type="submit">
+        </form>
+      </div>
+    </div>
+  </div>
+
 {% endif %}
 
 
