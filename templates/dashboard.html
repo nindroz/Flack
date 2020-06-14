@@ -5,13 +5,13 @@ Dashboard
 {% endblock %}
 
 {% block body %}
-<h1>WELCOME {{name}}
-</h1>
+<h1 style="margin: 20px;">User: {{name}} </h1>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript">
 
+
     document.addEventListener('DOMContentLoaded',() => {
-    
+
         //gets channels on load    
         const request= new XMLHttpRequest();
         request.open("GET","/getChannels");
@@ -25,6 +25,7 @@ Dashboard
             const ki = document.createElement('li');
             const but = document.createElement("button");
             but.setAttribute("onclick","clickrun(this)");
+            but.setAttribute("class","btn btn-secondary")
             but.setAttribute("data-name",data.channels[i]);
             ki.append(but);
             but.innerHTML=`#${data.channels[i]}`;
@@ -39,21 +40,20 @@ Dashboard
         //gets messages
         const request1 = new XMLHttpRequest();
         const oldChannel=localStorage.getItem("channel")
-        document.querySelector("#displayChannel").innerHTML=oldChannel;
+        document.querySelector("#displayChannel").innerHTML=`Current channel: ${oldChannel}`
         request1.open("GET",`/getMessages/${oldChannel}`);
 
         request1.onload = () => {
             const data = JSON.parse(request1.responseText);
-            console.log(data.messages);
             for(i=0; i<data.messages.length;i++){
                 const list = document.querySelector("#testmsg");
                 const msg = document.createElement("li");
+                msg.setAttribute("class","list-group-item rounded ")
+                msg.setAttribute("style","margin:5px")
                 const timestamp = Date(data.timestamp[i]);
                 Time= time(timestamp) + " "+ (Date(timestamp)).substr(4,6)
-                console.log(Time)
-                console.log(timestamp)
-                msg.innerHTML=`${Time} <strong>${data.user[i]}: </strong>  ${data.messages[i]} on `;
-                list.append(msg);
+                msg.innerHTML=`${Time} <strong>${data.user[i]}: </strong>  ${data.messages[i]}`;
+                list.append(msg)
             }
         }
         request1.send();
@@ -83,7 +83,6 @@ Dashboard
             document.querySelector('#sendMessage').onsubmit = () => {
                 const msg = document.querySelector("#message");
                 const channel = localStorage.getItem("channel");
-                console.log(channel);
                 socket.emit("send message", {"message":msg.value, "channel":channel, "timestamp":Date.now()})
                 return false;
             }
@@ -98,32 +97,31 @@ Dashboard
             const ki = document.createElement('li');
             const but = document.createElement("button");
             but.setAttribute("onclick","clickrun(this)");
+            but.setAttribute("class","btn btn-secondary")
             but.setAttribute("data-name",data.channel);
             ki.append(but)
             but.innerHTML=`#${data.channel}`;
-            console.log(`it work: ${ki.dataset.name}`);
             document.querySelector("#channels").append(ki);
             
             });
 
         socket.on ("display message", data => {
-            console.log(data.message);
-            console.log(data.user);
+            if(data.channel==localStorage.getItem("channel")){
             const timestamp = Date(data.timestamp);
             Time= time(timestamp) + " "+ (Date(timestamp)).substr(4,6)
             const li = document.createElement("li");
+            li.setAttribute("class","list-group-item")
             li.innerHTML= `${Time} <strong>${data.user}: </strong>  ${data.message}`;
             document.querySelector("#testmsg").append(li);
+            }
         });
 
         
     });
 
     function clickrun(elem) {
-        console.log(elem.dataset.name);
-        console.log("clicked"); 
         localStorage.setItem("channel",elem.dataset.name);
-        document.querySelector("#displayChannel").innerHTML=elem.dataset.name;
+        document.querySelector("#displayChannel").innerHTML=`Current channel: ${elem.dataset.name}`;
         //clears the list so new messages can be loaded
         var ul = document.getElementById("testmsg");
         var lis = ul.getElementsByTagName("li");
@@ -135,7 +133,9 @@ Dashboard
         const request = new XMLHttpRequest();
         request.open("POST","/select");
 
-        request.onload = () => { {} } 
+        request.onload = () => { 
+        data =JSON.parse(request.responseText)    
+         } 
         const currentChannel = new FormData();
         currentChannel.append("channel",elem.dataset.name);
         request.send(currentChannel);
@@ -146,12 +146,15 @@ Dashboard
 
         request1.onload = () => {
             const data = JSON.parse(request1.responseText);
-            console.log(data.messages);
             for(i=0; i<data.messages.length;i++){
                 const list = document.querySelector("#testmsg");
                 const msg = document.createElement("li");
+                const timestamp = Date(data.timestamp[i]);
+                Time= time(timestamp) + " "+ (Date(timestamp)).substr(4,6)
                 msg.innerHTML=data.messages[i];
-                msg.innerHTML=`${data.user[i]}: ${data.messages[i]}`;
+                msg.setAttribute("class","list-group-item rounded")
+                msg.setAttribute("style","margin:5px")
+                msg.innerHTML=`${Time} <strong> ${data.user[i]}: </strong> ${data.messages[i]}`;
                 list.append(msg);
             }
         }
@@ -170,28 +173,42 @@ Dashboard
     }
 
 </script>
+<div class="container" style="margin-top: 10px;">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <form id="form">
+                <div class="form-group">
+                    <label for="makechannel" style="font-size: 30px;">Create Channel</label>
+                    <input class="form-control" type="text"  id="channelMake">
+                    <input class="btn btn-block btn-primary" type="submit" value="create" style="margin-top:20px;">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<form id="form">
-    <input type="text"  id="channelMake">
-    <input type="submit" value="make channel">
-</form>
-
-<ul id="channels">
+<h2 style="margin-left:20px">Channels:</h2>
+<ul id="channels" class="list-group list-group-horizontal">
 </ul>
 
 <hr>
-<h2 id="displayChannel"></h2>
-
-<form id="sendMessage">
-    <input type="text" name="message" id="message">
-    <input type="submit">
-</form>
-
-
-<!--tempporary-->
-<ul id="testmsg">
+<ul id="testmsg" class="list-group ">
 
 </ul>
+<div class="container" style="margin-top: 10px;">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <form id="sendMessage" class="form-group">
+                <h2 id="displayChannel"></h2>
+                <input type="text" name="message" id="message" class="form-control" placeholder="message">
+                <input type="submit" class="btn btn-primary btn-block" value="send" style="margin-top: 20px;">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 {% endblock %}

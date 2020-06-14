@@ -35,10 +35,10 @@ def dashboard():
     return render_template("dashboard.html",name=session['displayName'])
 
 #test purposes
-@app.route("/pop")
-def pop():
-    session.pop("displayName")
-    return redirect('/')
+# @app.route("/pop")
+# def pop():
+#     session.pop("displayName")
+#     return redirect('/')
 
 @app.route("/getChannels",methods=['GET'])
 def getChannels():
@@ -49,21 +49,19 @@ def getMessages(name):
     messages=list(channels[name]['messages'])
     users=list(channels[name]['usernames'])
     timestamp=list(channels[name]['times'])
-    print("message"+name)
     return jsonify({"messages":messages,"user":users,"timestamp":timestamp})
     
-@app.route("/clean")
-def clean():
-    channels.clear()
-    grabChannels.clear()
-    return redirect(url_for("index"))
+# @app.route("/clean")
+# def clean():
+#     channels.clear()
+#     grabChannels.clear()
+#     return redirect(url_for("index"))
 
 @app.route("/select", methods=['POST'])
 def select():
     channel = request.form.get("channel")
     session["currentChannel"]=channel
-    print("current: "+session["currentChannel"])
-    return "pass"
+    return jsonify({"blah":"blah"})
 
 
 @socketio.on("make channel")
@@ -81,11 +79,10 @@ def channelM(data):
 @socketio.on("send message")
 def message(data):
     msg=data['message']
-    print("given channel:" + data["channel"])
     channels[data['channel']]['messages'].append(msg)
     channels[data['channel']]["usernames"].append(session["displayName"])
     time = channels[data['channel']]["times"].append(data['timestamp'])
-    emit("display message", {"message": msg,"user":session["displayName"],"timestamp":time},broadcast=True)
+    emit("display message", {"message": msg,"user":session["displayName"],"timestamp":time,"channel":data["channel"]},broadcast=True)
 
      
 
