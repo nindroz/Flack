@@ -1,3 +1,3 @@
-# Project 2
+# Flack
 
-Web Programming with Python and JavaScript
+Simple and minimal clone of Slack built with Flask - ( not currently deployed )
